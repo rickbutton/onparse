@@ -1,0 +1,12 @@
+{
+	"inbound": {
+		"email": "inbound@example.com",
+		"password": "password",
+		"server": "pop.example.com",
+		"ssl": true,
+		"port": 995
+	},
+	"serverEmail": "clientidstuff@developer.gserviceaccount.com",
+	"keyFile": "keyfile.pem",
+	"calendarName": "calendar name!!!"
+}
