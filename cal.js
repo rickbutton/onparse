@@ -1,9 +1,11 @@
 var moment = require('moment');
 var gcal = require('google-calendar');
+var fanin = require('fanin');
 var config = require('./config');
 
-var insertEvents = function(cal, id, on, off) {
+var insertEvents = function(cal, id, on, off, callback) {
 	console.log("Adding events to cal with id: " + id);
+	var fan = fanin(on.length, callback);
 	for (var i = 0; i < on.length; i++) {
 		var start = moment(on[i].date + " " + on[i].begin, 'MM/DD hh:mmA').toDate();
 		var end = moment(on[i].date + " " + on[i].end, 'MM/DD hh:mmA').toDate();
@@ -13,6 +15,7 @@ var insertEvents = function(cal, id, on, off) {
 			summary: on[i].type,
 		};
 		cal.events.insert(id, event, function(err, result) {
+			fan();
 			if (err) {
 				console.error(err);
 			} else {
@@ -22,7 +25,7 @@ var insertEvents = function(cal, id, on, off) {
 	}
 }
 
-var insertCal = function(token, on, off) {
+var insertCal = function(token, on, off, callback) {
 	var cal = new gcal.GoogleCalendar(token);
 	cal.calendarList.list(function(err, calendarList) {
 		if (err) {
@@ -36,10 +39,12 @@ var insertCal = function(token, on, off) {
 						id = calendarList.items[i].id;
 				}
 				if (id) {
-					insertEvents(cal, id, on, off)
+					insertEvents(cal, id, on, off, callback)
+				} else {
+					callback("didn't find calendar");
 				}
 			} else {
-				console.log("Error - could not find '" + name + "' cal.");
+				callback("didn't find calendar");
 			}
 		}
 	});

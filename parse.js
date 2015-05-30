@@ -1,6 +1,7 @@
 var gauth = require('google-oauth-jwt');
 var config = require('./config');
-var email = require('./email');
+var inbound = require('./inbound');
+var outbound = require('./outbound');
 var sched = require('./sched');
 var cal = require('./cal')
 
@@ -18,7 +19,7 @@ var auth = function(callback) {
 
 auth(function(token) {
 	console.log("access: " + token);
-	email.getSchedEmail(function(err, text) {
+	inbound.getSchedEmail(function(err, text) {
 		if (err) {
 			console.error(err);
 		} else {
@@ -27,7 +28,24 @@ auth(function(token) {
 				console.log(text);
 				var processed = sched.getOnOff(text);
 				console.log(processed);
-				cal.insertCal(token, processed.on, processed.off);
+				cal.insertCal(token, processed.on, processed.off, function(err) {
+					if (err) {
+						console.error(err);
+					} else {
+						console.log("sending outbound notify");
+						var msg = text + "\n\n\n";
+						msg += JSON.stringify(processed.on) + "\n\n\n";
+						msg += JSON.stringify(processed.off) + "\n\n\n";
+						outbound.send("ON Work Schedule Update", msg, function(err, info) {
+							if (err) {
+								console.error(err);
+							} else {
+								console.log("sent outbound notify");
+								console.log(info);
+							}
+						});
+					}
+				});
 			} else {
 				console.log("no schedule email");
 			}
