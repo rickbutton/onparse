@@ -1,4 +1,5 @@
 var fs = require('fs');
-var obj = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+var path = require('path');
+var obj = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'config.json'), 'utf8'));
 
 module.exports = obj;

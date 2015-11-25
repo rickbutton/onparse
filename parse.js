@@ -4,12 +4,13 @@ var inbound = require('./inbound');
 var outbound = require('./outbound');
 var sched = require('./sched');
 var cal = require('./cal')
+var path = require('path');
 
 var auth = function(callback) {
 	gauth.authenticate(
 		{
 			email: config.serverEmail,
-		    keyFile: config.keyFile,
+		    keyFile: path.resolve(__dirname, config.keyFile),
 		    scopes: ['https://www.googleapis.com/auth/calendar']
 		}, function (err, token) {
 			if (err) {
