@@ -12,7 +12,11 @@ var auth = function(callback) {
 		    keyFile: config.keyFile,
 		    scopes: ['https://www.googleapis.com/auth/calendar']
 		}, function (err, token) {
-			callback(token);
+			if (err) {
+				console.log("error on google auth: " + err);
+			} else {
+				callback(token);
+			}
 		}
 	);
 };
